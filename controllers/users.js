@@ -1,13 +1,21 @@
 const User = require('../models/user');
 
+const {
+  OK,
+  CREATED,
+  BAD_REQUEST,
+  NOT_FOUND,
+  SERVER_ERROR
+} = require('../utils/err');
+
 // ищем всех юзеров
 const getUsers = (req, res) => {
   // Найти все записи
   User.find({})
     // записываем данные в базу
-    .then((users) => res.send(users))
+    .then((users) => res.send({ data: users }))
     // если данные не записались, вернём ошибку
-    .catch(() => {res.status(500).send({ message: 'На сервере произошла ошибка' }); });
+    .catch(() => {res.status(SERVER_ERROR).send({ message: 'На сервере произошла ошибка' }); });
 };
 
 // ищем по ID
@@ -16,14 +24,14 @@ const getUserId = (req, res) => {
   .orFail(() => {
     throw new Error("Not found")
   })
-  .then(user => res.send({data: user}))
+  .then(user => res.send({ data: user }))
   .catch((err) => {
     if (err.message === "Not found") {
-      res.status(404).send({message: 'Пользователь по указанному _id не найден.'});
+      res.status(NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден.' });
     } else if (err.name === 'CastError') {
-      res.status(400).send({message: 'Переданы некорректные данные _id'});
+      res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные _id' });
     } else {
-      res.status(500).send({ message: 'На сервере произошла ошибка' })
+      res.status(SERVER_ERROR).send({ message: 'На сервере произошла ошибка' })
     }
   });
 };
@@ -31,15 +39,15 @@ const getUserId = (req, res) => {
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
-    .then(user => res.status(201).send({data: user}))
+    .then(user => res.status(CREATED).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         const message = Object.values(err.errors)
         .map(error => error.message)
         .join('; ');
-        res.status(400).send({ message });
+        res.status(BAD_REQUEST).send({ message });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' })
+        res.status(SERVER_ERROR).send({ message: 'На сервере произошла ошибка' })
       }
     });
 };
@@ -51,15 +59,15 @@ const updateUserInfo = (req, res) => {
     { name, about },
     { new: true, runValidators: true },
   )
-    .then((user) => res.status(200).send({ data: user }))
+    .then((user) => res.status(OK).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         const message = Object.values(err.errors)
           .map((error) => error.message)
           .join('; ');
-        res.status(400).send({ message });
+        res.status(BAD_REQUEST).send({ message });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        res.status(SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -71,15 +79,15 @@ const updateUserAvatar = (req, res) => {
     { avatar },
     { new: true, runValidators: true },
   )
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(OK).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         const message = Object.values(err.errors)
           .map((error) => error.message)
           .join('; ');
-        res.status(400).send({ message });
+        res.status(BAD_REQUEST).send({ message });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        res.status(SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };

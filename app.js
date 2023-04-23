@@ -2,6 +2,10 @@
 const userRouter = require('./routes/users.js');
 const cardRouter = require('./routes/cards.js');
 
+const {
+  NOT_FOUND
+} = require('./utils/err');
+
 // Слушать 3000 порт
 const { PORT = 3000 } = process.env;
 
@@ -25,7 +29,7 @@ app.use(userRouter);
 app.use(cardRouter);
 
 app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Страница не найдена' });
+  res.status(NOT_FOUND).send({ message: 'Страница не найдена' });
 })
 
 // Подключить приложение к cерверу mongo
