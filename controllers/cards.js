@@ -10,6 +10,7 @@ const {
 
 const getCards = (req, res) => {
   Card.find({})
+    .populate(['owner', 'likes'])
     .then((cards) => res.send({ data: cards }))
     .catch(() => res.status(SERVER_ERROR).send({ message: 'На сервере произошла ошибка' }));
 };
@@ -19,6 +20,7 @@ const createCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
+    .then((card) => card.populate(['owner', 'likes']))
     .then((card) => res.status(CREATED).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -54,6 +56,7 @@ const likeCard = (req, res) => {
     { new: true },
   )
   .orFail()
+  .then((card) => card.populate(['owner', 'likes']))
   .then(card => res.status(OK).send({ data: card, message: 'Лайк поставлен' }))
   .catch((err) => {
     if (err.name === 'DocumentNotFoundError') {
@@ -73,6 +76,7 @@ const dislikeCard = (req, res) => {
     { new: true },
   )
   .orFail()
+  .then((card) => card.populate(['owner', 'likes']))
   .then(card => res.status(OK).send({ data: card, message: 'Лайк удален' }))
   .catch((err) => {
     if (err.name === 'DocumentNotFoundError') {
