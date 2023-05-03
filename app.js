@@ -1,6 +1,7 @@
+/* eslint-disable import/order */
 // Импорт роутов
-const userRouter = require('./routes/users.js');
-const cardRouter = require('./routes/cards.js');
+const userRouter = require('./routes/users');
+const cardRouter = require('./routes/cards');
 
 const {
   NOT_FOUND
@@ -30,16 +31,11 @@ app.use(cardRouter);
 
 app.use('*', (req, res) => {
   res.status(NOT_FOUND).send({ message: 'Страница не найдена' });
-})
+});
 
 // Подключить приложение к cерверу mongo
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true
-});
-
-
-app.get('/', function(req, res){
-  res.sendFile(__dirname+'/app.js'); // change the path to your app.js
 });
 
 app.listen(PORT, () => {
