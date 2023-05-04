@@ -1,12 +1,18 @@
+/* eslint-disable import/no-extraneous-dependencies */
+// eslint-disable-next-line import/no-extraneous-dependencies
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const User = require('../models/user');
-
 const {
   OK,
   CREATED,
   BAD_REQUEST,
+  UNAUTHORIZED,
   NOT_FOUND,
   SERVER_ERROR
 } = require('../utils/err');
+
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 // ищем всех юзеров
 const getUsers = (req, res) => {
@@ -37,9 +43,18 @@ const getUserId = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((user) => res.status(CREATED).send({ data: user }))
+  const {
+    name, about, avatar, email, password
+  } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
+    }))
+    .then((user) => {
+      const data = user.toObject();
+      delete data.password;
+      res.status(CREATED).send(data);
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         const message = Object.values(err.errors)
@@ -92,10 +107,39 @@ const updateUserAvatar = (req, res) => {
     });
 };
 
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      // проверить существует ли такая почта или пароль
+      if (!user || !password) {
+        return next(new UNAUTHORIZED('Некорректный email или пароль'));
+      }
+      // создать токен
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+        { expiresIn: '7d' },
+      );
+      res.cookie('jwt', token, {
+        // такая кука будет храниться 7 дней
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+        // защита от автоматической отправки кук
+        // указать браузеру, чтобы тот посылал куки, только если запрос сделан с того же домена
+        sameSite: true
+      });
+      res.send({ message: 'Успешный вход' });
+      return false;
+    })
+    .catch(next);
+};
+
 module.exports = {
   getUsers,
   getUserId,
   createUser,
   updateUserInfo,
-  updateUserAvatar
+  updateUserAvatar,
+  login
 };
