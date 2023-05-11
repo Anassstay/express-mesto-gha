@@ -9,7 +9,7 @@ module.exports = (req, res, next) => {
   if (!token) {
     return next(new UNAUTHORIZED('Необходима авторизация'));
   }
-  // верифицировать токена
+  // верифицировать токен
   let payload;
   try {
     payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');

@@ -4,45 +4,41 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const {
-  OK,
   CREATED,
-  BAD_REQUEST,
-  UNAUTHORIZED,
-  NOT_FOUND,
-  SERVER_ERROR
+  UNAUTHORIZED
 } = require('../utils/err');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 // ищем всех юзеров
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   // Найти все записи
   User.find({})
-    // записываем данные в базу
+    // записать данные в базу
     .then((users) => res.send({ data: users }))
-    // если данные не записались, вернём ошибку
-    .catch(() => { res.status(SERVER_ERROR).send({ message: 'На сервере произошла ошибка' }); });
+    // если данные не записались
+    .catch(next);
 };
 
 // ищем по ID
-const getUserId = (req, res) => {
-  User.findById(req.params.userId)
-    .orFail(() => {
-      throw new Error('Not found');
-    })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err.message === 'Not found') {
-        res.status(NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден.' });
-      } else if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные _id' });
-      } else {
-        res.status(SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
-      }
-    });
+const findUserById = (req, res, requiredData, next) => {
+  User.findById(requiredData)
+    .orFail()
+    .then((user) => res.send(user))
+    .catch(next);
 };
 
-const createUser = (req, res) => {
+const getUser = (req, res, next) => {
+  const requiredData = req.params.userId;
+  findUserById(req, res, requiredData, next);
+};
+
+const getUserInfo = (req, res, next) => {
+  const requiredData = req.user._id;
+  findUserById(req, res, requiredData, next);
+};
+
+const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password
   } = req.body;
@@ -55,56 +51,24 @@ const createUser = (req, res) => {
       delete data.password;
       res.status(CREATED).send(data);
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        const message = Object.values(err.errors)
-          .map((error) => error.message)
-          .join('; ');
-        res.status(BAD_REQUEST).send({ message });
-      } else {
-        res.status(SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
-      }
-    });
+    .catch(next);
 };
 
-const updateUserInfo = (req, res) => {
-  const { name, about } = req.body;
-  User.findByIdAndUpdate(
-    req.user._id,
-    { name, about },
-    { new: true, runValidators: true },
-  )
-    .then((user) => res.status(OK).send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        const message = Object.values(err.errors)
-          .map((error) => error.message)
-          .join('; ');
-        res.status(BAD_REQUEST).send({ message });
-      } else {
-        res.status(SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
-      }
-    });
+const updateUser = (req, res, updateData, next) => {
+  User.findByIdAndUpdate(req.user._id, updateData, { new: true, runValidators: true })
+    .orFail()
+    .then((user) => res.send(user))
+    .catch(next);
 };
 
-const updateUserAvatar = (req, res) => {
-  const { avatar } = req.body;
-  User.findByIdAndUpdate(
-    req.user._id,
-    { avatar },
-    { new: true, runValidators: true },
-  )
-    .then((user) => res.status(OK).send(user))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        const message = Object.values(err.errors)
-          .map((error) => error.message)
-          .join('; ');
-        res.status(BAD_REQUEST).send({ message });
-      } else {
-        res.status(SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
-      }
-    });
+const updateUserInfo = (req, res, next) => {
+  const updateData = req.body;
+  updateUser(req, res, updateData, next);
+};
+
+const updateUserAvatar = (req, res, next) => {
+  const updateData = req.body;
+  updateUser(req, res, updateData, next);
 };
 
 const login = (req, res, next) => {
@@ -137,7 +101,8 @@ const login = (req, res, next) => {
 
 module.exports = {
   getUsers,
-  getUserId,
+  getUser,
+  getUserInfo,
   createUser,
   updateUserInfo,
   updateUserAvatar,
