@@ -1,20 +1,19 @@
-/* eslint-disable import/no-extraneous-dependencies */
 const jwt = require('jsonwebtoken');
-const { UNAUTHORIZED } = require('../utils/err');
+const UnauthorizedError = require('../utils/unauthorizedError');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports = (req, res, next) => {
   const token = req.cookies.jwt;
   if (!token) {
-    return next(new UNAUTHORIZED('Необходима авторизация'));
+    return next(new UnauthorizedError('Необходима авторизация'));
   }
   // верифицировать токен
   let payload;
   try {
     payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
   } catch (err) {
-    return next(new UNAUTHORIZED('Необходима авторизация'));
+    return next(new UnauthorizedError('Необходима авторизация'));
   }
   // записать пейлоуд в объект запроса
   req.user = payload;

@@ -1,12 +1,10 @@
-/* eslint-disable import/no-extraneous-dependencies */
-// eslint-disable-next-line import/no-extraneous-dependencies
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
+
 const {
-  CREATED,
-  UNAUTHORIZED
-} = require('../utils/err');
+  CREATED
+} = require('../utils/errCode');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -75,10 +73,6 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      // проверить существует ли такая почта или пароль
-      if (!user || !password) {
-        return next(new UNAUTHORIZED('Некорректный email или пароль'));
-      }
       // создать токен
       const token = jwt.sign(
         { _id: user._id },
@@ -94,7 +88,6 @@ const login = (req, res, next) => {
         sameSite: true
       });
       res.send({ message: 'Успешный вход' });
-      return false;
     })
     .catch(next);
 };

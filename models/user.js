@@ -1,8 +1,8 @@
-/* eslint-disable import/no-extraneous-dependencies */
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
-const { UNAUTHORIZED } = require('../utils/err');
+const UnauthorizedError = require('../utils/unauthorizedError');
+const { linkRegExp } = require('../utils/regExp');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     required: true,
+    validate: {
+      validator: (avatar) => linkRegExp.test(avatar),
+      message: 'Неправильный формат ссылки',
+    },
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'
   },
   email: {
@@ -41,19 +45,18 @@ const userSchema = new mongoose.Schema({
   }
 }, { toJSON: { useProjection: true }, toObject: { useProjection: true } });
 
-// eslint-disable-next-line func-names
 userSchema.statics.findUserByCredentials = function (email, password) {
   return this.findOne({ email }).select('+password')
     .then((user) => {
     // если user не нашёлся, отклонить промис
       if (!user) {
-        return Promise.reject(new UNAUTHORIZED('Неправильные почта или пароль'));
+        return Promise.reject(new UnauthorizedError('Неправильная почта или пароль'));
       }
       // если нашёлся, сравнить хеши
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return Promise.reject(new UNAUTHORIZED('Неправильные почта или пароль'));
+            return Promise.reject(new UnauthorizedError('Неправильная почта или пароль'));
           }
           return user;
         });
