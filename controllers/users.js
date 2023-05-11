@@ -15,7 +15,7 @@ const getUsers = (req, res, next) => {
   // Найти все записи
   User.find({})
     // записать данные в базу
-    .then((users) => res.send({ data: users }))
+    .then((users) => res.send(users))
     // если данные не записались
     .catch(next);
 };
