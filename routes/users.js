@@ -17,7 +17,7 @@ userRouter.get('/users/', getUsers);
 
 userRouter.get('/users/:userId', celebrate({
   params: Joi.object().keys({
-    userId: Joi.objectId().required(),
+    userId: Joi.string().required(),
   }),
 }), getUser);
 
