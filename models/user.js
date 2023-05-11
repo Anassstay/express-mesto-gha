@@ -44,24 +44,26 @@ const userSchema = new mongoose.Schema({
     // по умолчанию хеш пароля пользователя не будет возвращаться из базы
     select: false,
   }
-}, { toJSON: { useProjection: true }, toObject: { useProjection: true } });
+}, {
+  versionKey: false,
 
-userSchema.statics.findUserByCredentials = function (email, password) {
-  return this.findOne({ email }).select('+password')
-    .then((user) => {
-    // если user не нашёлся, отклонить промис
-      if (!user) {
-        return Promise.reject(new UnauthorizedError('Неправильная почта или пароль'));
-      }
-      // если нашёлся, сравнить хеши
-      return bcrypt.compare(password, user.password)
-        .then((matched) => {
-          if (!matched) {
-            return Promise.reject(new UnauthorizedError('Неправильная почта или пароль'));
+  statics: {
+    findUserByCredentials(email, password) {
+      return this.findOne({ email }).select('+password')
+        .then((user) => {
+          if (!user) {
+            throw new UnauthorizedError('Неправильная почта или пароль');
           }
-          return user;
+          return bcrypt.compare(password, user.password)
+            .then((matched) => {
+              if (!matched) {
+                throw new UnauthorizedError('Неправильная почта или пароль');
+              }
+              return user;
+            });
         });
-    });
-};
+    },
+  },
+});
 
 module.exports = mongoose.model('user', userSchema);
