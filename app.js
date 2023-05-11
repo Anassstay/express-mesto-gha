@@ -39,7 +39,5 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true
 });
 
-app.listen(PORT, () => {
-  // Если всё работает, консоль покажет, какой порт приложение слушает
-  console.log(`Server started on port ${PORT}`);
-});
+// Слушать порт
+app.listen(PORT);
