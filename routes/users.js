@@ -13,11 +13,11 @@ const {
 
 const { linkRegExp } = require('../utils/regExp');
 
-userRouter.get('/users/', getUsers);
+userRouter.get('/users', getUsers);
 
 userRouter.get('/users/:userId', celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().required(),
+    userId: Joi.string().required().hex().length(24),
   }),
 }), getUser);
 
