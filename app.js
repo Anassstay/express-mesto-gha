@@ -1,8 +1,4 @@
-/* eslint-disable import/order */
 require('dotenv').config();
-
-// Импорт роутов
-const indexRoutes = require('./routes/index');
 
 // Слушать 3000 порт
 const { PORT = 3000 } = process.env;
@@ -18,8 +14,16 @@ const rateLimit = require('express-rate-limit'); // Защита от автом
 // Подключить мидлвары
 const errors = require('./middlewares/errors');
 
+// Импорт роутов
+const indexRoutes = require('./routes/index');
+
 // Создать приложение методом express
 const app = express();
+
+// Подключить приложение к cерверу mongo
+mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
+  useNewUrlParser: true
+});
 
 app.use(express.json());
 app.use(cookieParser()); // подключаем парсер кук как мидлвэр
@@ -33,11 +37,6 @@ app.use(limiter);
 app.use('/', indexRoutes);
 app.use(validationErrors());
 app.use(errors);
-
-// Подключить приложение к cерверу mongo
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
-  useNewUrlParser: true
-});
 
 // Слушать порт
 app.listen(PORT);

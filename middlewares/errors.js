@@ -15,7 +15,7 @@ const UnauthorizedError = require('../utils/unauthorizedError');
 const ForbiddenError = require('../utils/forbiddenError');
 const NotFoundError = require('../utils/notFoundError');
 
-const errors = ((err, req, res, next) => {
+module.exports = ((err, req, res, next) => {
   if (err instanceof ValidationError) {
     const errMessage = Object.values(err.errors).map((error) => error.message).join(' ');
     return res.status(BAD_REQUEST).send({
@@ -58,6 +58,6 @@ const errors = ((err, req, res, next) => {
   return next();
 });
 
-module.exports = {
-  errors
-};
+// module.exports = {
+//   errors
+// };
