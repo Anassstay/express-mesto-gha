@@ -13,24 +13,24 @@ const {
 
 const { linkRegExp } = require('../utils/regExp');
 
-userRouter.get('/users', getUsers);
+userRouter.get('/', getUsers);
 
-userRouter.get('/users/:userId', celebrate({
+userRouter.get('/:userId', celebrate({
   params: Joi.object().keys({
     userId: Joi.string().required(),
   }),
 }), getUser);
 
-userRouter.get('/users/me', getUserInfo);
+userRouter.get('/me', getUserInfo);
 
-userRouter.patch('/users/me', celebrate({
+userRouter.patch('/me', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     about: Joi.string().required().min(2).max(30),
   }),
 }), updateUserInfo);
 
-userRouter.patch('/users/me/avatar', celebrate({
+userRouter.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
     avatar: Joi.string().required().regex(linkRegExp),
   }),

@@ -57,7 +57,3 @@ module.exports = ((err, req, res, next) => {
   });
   return next();
 });
-
-// module.exports = {
-//   errors
-// };

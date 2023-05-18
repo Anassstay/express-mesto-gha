@@ -15,26 +15,26 @@ const { linkRegExp } = require('../utils/regExp');
 
 cardRouter.get('/cards', getCards);
 
-cardRouter.post('/cards', celebrate({
+cardRouter.post('/', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     link: Joi.string().required().regex(linkRegExp)
   }),
 }), createCard);
 
-cardRouter.delete('/cards/:cardId', celebrate({
+cardRouter.delete('/:cardId', celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().required(),
   }),
 }), deleteCard);
 
-cardRouter.put('/cards/:cardId/likes', celebrate({
+cardRouter.put('/:cardId/likes', celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().required(),
   }),
 }), likeCard);
 
-cardRouter.delete('/cards/:cardId/likes', celebrate({
+cardRouter.delete('/:cardId/likes', celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().required(),
   }),

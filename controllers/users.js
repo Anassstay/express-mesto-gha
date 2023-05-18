@@ -19,21 +19,21 @@ const getUsers = (req, res, next) => {
 };
 
 // ищем по ID
-const findUserById = (req, res, requiredData, next) => {
-  User.findById(requiredData)
+const findUserById = (req, res, dataUserId, next) => {
+  User.findById(dataUserId)
     .orFail()
     .then((user) => res.send(user))
     .catch(next);
 };
 
 const getUser = (req, res, next) => {
-  const requiredData = req.params.userId;
-  findUserById(req, res, requiredData, next);
+  const dataUserId = req.params.userId;
+  findUserById(req, res, dataUserId, next);
 };
 
 const getUserInfo = (req, res, next) => {
-  const requiredData = req.user._id;
-  findUserById(req, res, requiredData, next);
+  const dataUserId = req.user._id;
+  findUserById(req, res, dataUserId, next);
 };
 
 const createUser = (req, res, next) => {
@@ -52,21 +52,21 @@ const createUser = (req, res, next) => {
     .catch(next);
 };
 
-const updateUser = (req, res, updateData, next) => {
-  User.findByIdAndUpdate(req.user._id, updateData, { new: true, runValidators: true })
+const updateUser = (req, res, dataUpdate, next) => {
+  User.findByIdAndUpdate(req.user._id, dataUpdate, { new: true, runValidators: true })
     .orFail()
     .then((user) => res.send(user))
     .catch(next);
 };
 
 const updateUserInfo = (req, res, next) => {
-  const updateData = req.body;
-  updateUser(req, res, updateData, next);
+  const dataUpdate = req.body;
+  updateUser(req, res, dataUpdate, next);
 };
 
 const updateUserAvatar = (req, res, next) => {
-  const updateData = req.body;
-  updateUser(req, res, updateData, next);
+  const dataUpdate = req.body;
+  updateUser(req, res, dataUpdate, next);
 };
 
 const login = (req, res, next) => {

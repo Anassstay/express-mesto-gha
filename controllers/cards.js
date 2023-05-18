@@ -42,27 +42,53 @@ const deleteCard = (req, res, next) => {
     .catch(next);
 };
 
-const updateLikes = (req, res, updateData, next) => {
-  Card.findByIdAndUpdate(req.params.cardId, updateData, { new: true })
-    .orFail()
-    .then((card) => card.populate(['owner', 'likes']))
-    .then((card) => res.send({ card }))
-    .catch(next);
-};
+// const updateLikes = (req, res, updateData, next) => {
+//   Card.findByIdAndUpdate(req.params.cardId, updateData, { new: true })
+//     .orFail()
+//     .then((card) => card.populate(['owner', 'likes']))
+//     .then((card) => res.send({ card }))
+//     .catch(next);
+// };
 
 // поставить лайк
 const likeCard = (req, res, next) => {
   const owner = req.user._id;
-  const updateData = { $addToSet: { likes: owner } };
-  updateLikes(req, res, updateData, next);
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $addToSet: { likes: owner } },
+    { new: true },
+  )
+    .orFail()
+    .populate(['owner', 'likes'])
+    .then((card) => res.send({ card }))
+    .catch(next);
 };
+
+// const likeCard = (req, res, next) => {
+//   const owner = req.user._id;
+//   const updateData = { $addToSet: { likes: owner } };
+//   updateLikes(req, res, updateData, next);
+// };
 
 // убрать лайк
 const dislikeCard = (req, res, next) => {
   const owner = req.user._id;
-  const updateData = { $pull: { likes: owner } };
-  updateLikes(req, res, updateData, next);
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $pull: { likes: owner } },
+    { new: true },
+  )
+    .orFail()
+    .populate(['owner', 'likes'])
+    .then((card) => res.send({ data: card }))
+    .catch(next);
 };
+
+// const dislikeCard = (req, res, next) => {
+//   const owner = req.user._id;
+//   const updateData = { $pull: { likes: owner } };
+//   updateLikes(req, res, updateData, next);
+// };
 
 module.exports = {
   getCards,

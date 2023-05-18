@@ -12,8 +12,8 @@ indexRoutes.use('/cards', auth, cardRouter);
 indexRoutes.use('/users', auth, userRouter);
 indexRoutes.use('/signin', signInRouter);
 indexRoutes.use('/signup', signUpRouter);
-indexRoutes.use('*', (req, res) => {
-  res.status(NotFoundError).send({ message: 'Страница не найдена' });
+indexRoutes.use('*', (req, res, next) => {
+  next(new NotFoundError('Страница не найдена'));
 });
 
 module.exports = indexRoutes;
