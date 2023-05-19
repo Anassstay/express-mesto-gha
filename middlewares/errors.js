@@ -7,7 +7,6 @@ const {
 const {
   BAD_REQUEST,
   NOT_FOUND,
-  CONFLICT,
   SERVER_ERROR
 } = require('../utils/errCode');
 
@@ -45,11 +44,6 @@ module.exports = ((err, req, res, next) => {
   if (err instanceof NotFoundError) {
     return res.status(err.statusCode).send({
       message: err.message,
-    });
-  }
-  if (err.code === 11000) {
-    return res.status(CONFLICT).send({
-      message: 'Указанный email уже зарегистрирован. Пожалуйста, используйте другой email',
     });
   }
   res.status(SERVER_ERROR).send({

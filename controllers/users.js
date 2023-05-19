@@ -6,6 +6,8 @@ const {
   CREATED
 } = require('../utils/errCode');
 
+const ConflictError = require('../utils/conflictError');
+
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 // ищем всех юзеров
@@ -49,7 +51,13 @@ const createUser = (req, res, next) => {
       delete data.password;
       res.status(CREATED).send(data);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new ConflictError('Пользователь с данным email уже существует'));
+        return;
+      }
+      next(err);
+    });
 };
 
 const updateUser = (req, res, dataUpdate, next) => {
