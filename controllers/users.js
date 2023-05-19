@@ -3,11 +3,10 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
 const {
-  CREATED,
-  CONFLICT
+  CREATED
 } = require('../utils/errCode');
 
-// const ConflictError = require('../utils/conflictError');
+const ConflictError = require('../utils/conflictError');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -54,7 +53,7 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.code === 11000) {
-        next(new CONFLICT('Пользователь с данным email уже существует'));
+        next(new ConflictError('Пользователь с данным email уже существует'));
         return;
       }
       next(err);
