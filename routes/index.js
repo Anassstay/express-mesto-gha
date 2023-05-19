@@ -8,8 +8,8 @@ const signUpRouter = require('./signUp');
 const auth = require('../middlewares/auth');
 const NotFoundError = require('../utils/notFoundError');
 
-indexRoutes.use('/signin', signInRouter);
-indexRoutes.use('/signup', signUpRouter);
+indexRoutes.post('/signin', signInRouter);
+indexRoutes.post('/signup', signUpRouter);
 indexRoutes.use('/cards', auth, cardRouter);
 indexRoutes.use('/users', auth, userRouter);
 indexRoutes.use('*', (req, res, next) => {
