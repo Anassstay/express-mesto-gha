@@ -8,10 +8,10 @@ const signUpRouter = require('./signUp');
 const auth = require('../middlewares/auth');
 const NotFoundError = require('../utils/notFoundError');
 
-indexRoutes.use('/cards', auth, cardRouter);
-indexRoutes.use('/users', auth, userRouter);
 indexRoutes.post('/signin', signInRouter);
 indexRoutes.post('/signup', signUpRouter);
+indexRoutes.use('/cards', auth, cardRouter);
+indexRoutes.use('/users', auth, userRouter);
 indexRoutes.use('*', (req, res, next) => {
   next(new NotFoundError('Страница не найдена'));
 });
