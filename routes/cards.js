@@ -1,6 +1,5 @@
 // создать express router
 const cardRouter = require('express').Router();
-const { celebrate, Joi } = require('celebrate');
 
 // импорт списков
 const {
@@ -11,34 +10,20 @@ const {
   dislikeCard
 } = require('../controllers/cards');
 
-const { linkRegExp } = require('../utils/regExp');
+const {
+  cardDataValidator,
+  cardIdValidator,
+} = require('./validators/cardValidator');
 
 cardRouter.get('/', getCards);
 
-cardRouter.post('/', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().regex(linkRegExp)
-  }),
-}), createCard);
+cardRouter.post('/', cardDataValidator, createCard);
 
-cardRouter.delete('/:cardId', celebrate({
-  params: Joi.object().keys({
-    cardId: Joi.string().hex().length(24).required(),
-  }),
-}), deleteCard);
+cardRouter.delete('/:cardId', cardIdValidator, deleteCard);
 
-cardRouter.put('/:cardId/likes', celebrate({
-  params: Joi.object().keys({
-    cardId: Joi.string().hex().length(24).required(),
-  }),
-}), likeCard);
+cardRouter.put('/:cardId/likes', cardIdValidator, likeCard);
 
-cardRouter.delete('/:cardId/likes', celebrate({
-  params: Joi.object().keys({
-    cardId: Joi.string().hex().length(24).required(),
-  }),
-}), dislikeCard);
+cardRouter.delete('/:cardId/likes', cardIdValidator, dislikeCard);
 
 // экспорт express router
 module.exports = cardRouter;

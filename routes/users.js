@@ -1,6 +1,5 @@
 // создать express router
 const userRouter = require('express').Router();
-const { celebrate, Joi } = require('celebrate');
 
 // импорт списков
 const {
@@ -11,30 +10,21 @@ const {
   updateUserAvatar
 } = require('../controllers/users');
 
-const { linkRegExp } = require('../utils/regExp');
+const {
+  idUserValidator,
+  dataUserValidator,
+  avatarUserValidator,
+} = require('./validators/userValidator');
 
 userRouter.get('/', getUsers);
 
 userRouter.get('/me', getUserInfo);
 
-userRouter.patch('/me', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    about: Joi.string().required().min(2).max(30),
-  }),
-}), updateUserInfo);
+userRouter.patch('/me', dataUserValidator, updateUserInfo);
 
-userRouter.get('/:userId', celebrate({
-  params: Joi.object().keys({
-    userId: Joi.string().required().hex().length(24),
-  }),
-}), getUser);
+userRouter.get('/:userId', idUserValidator, getUser);
 
-userRouter.patch('/me/avatar', celebrate({
-  body: Joi.object().keys({
-    avatar: Joi.string().required().regex(linkRegExp),
-  }),
-}), updateUserAvatar);
+userRouter.patch('/me/avatar', avatarUserValidator, updateUserAvatar);
 
 // экспорт express router
 module.exports = userRouter;
