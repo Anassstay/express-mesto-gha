@@ -10,8 +10,8 @@ const { createUser, login } = require('../controllers/users');
 const auth = require('../middlewares/auth');
 const NotFoundError = require('../utils/notFoundError');
 
-indexRoutes.post('/signin', signInRouter, login);
-indexRoutes.post('/signup', signUpRouter, createUser);
+indexRoutes.post('/signin', signInRouter, cardRouter, login);
+indexRoutes.post('/signup', signUpRouter, cardRouter, createUser);
 indexRoutes.use('/cards', auth, cardRouter);
 indexRoutes.use('/users', auth, userRouter);
 indexRoutes.use('*', (req, res, next) => {
