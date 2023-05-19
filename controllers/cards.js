@@ -5,7 +5,6 @@ const {
 } = require('../utils/errCode');
 
 const ForbiddenError = require('../utils/forbiddenError');
-const NotFoundError = require('../utils/notFoundError');
 
 // возвращаем все карточки
 const getCards = (req, res, next) => {
@@ -30,13 +29,13 @@ const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .orFail()
     .then((card) => {
-      if (!card) {
-        throw new NotFoundError('Такой карточки нет');
-      }
-      if (req.params.cardId !== card.owner.toString()) {
-        throw new ForbiddenError('Нет прав для удаления карточки');
+      const owner = card.owner.toString();
+      if (req.user._id === owner) {
+        card.deleteOne()
+          .then(() => res.send({ message: 'Карточка успешно удалена' }))
+          .catch(next);
       } else {
-        res.send({ message: 'Карточка успешно удалена' });
+        next(new ForbiddenError('Нет прав для удаления карточки'));
       }
     })
     .catch(next);
