@@ -15,12 +15,6 @@ const { linkRegExp } = require('../utils/regExp');
 
 userRouter.get('/', getUsers);
 
-userRouter.get('/:userId', celebrate({
-  params: Joi.object().keys({
-    userId: Joi.string().required(),
-  }),
-}), getUser);
-
 userRouter.get('/me', getUserInfo);
 
 userRouter.patch('/me', celebrate({
@@ -29,6 +23,12 @@ userRouter.patch('/me', celebrate({
     about: Joi.string().required().min(2).max(30),
   }),
 }), updateUserInfo);
+
+userRouter.get('/:userId', celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().required().hex().length(24),
+  }),
+}), getUser);
 
 userRouter.patch('/me/avatar', celebrate({
   body: Joi.object().keys({

@@ -5,6 +5,7 @@ const {
 } = require('../utils/errCode');
 
 const ForbiddenError = require('../utils/forbiddenError');
+const NotFoundError = require('../utils/notFoundError');
 
 // возвращаем все карточки
 const getCards = (req, res, next) => {
@@ -29,26 +30,17 @@ const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .orFail()
     .then((card) => {
-      Card.deleteOne({ _id: card._id, owner: req.user._id })
-        .then((result) => {
-          if (result.deletedCount === 0) {
-            throw new ForbiddenError('Нет прав для удаления карточки');
-          } else {
-            res.send({ message: 'Карточка успешно удалена' });
-          }
-        })
-        .catch(next);
+      if (!card) {
+        throw new NotFoundError('Такой карточки нет');
+      }
+      if (req.params.cardId !== card.owner.toString()) {
+        throw new ForbiddenError('Нет прав для удаления карточки');
+      } else {
+        res.send({ message: 'Карточка успешно удалена' });
+      }
     })
     .catch(next);
 };
-
-// const updateLikes = (req, res, updateData, next) => {
-//   Card.findByIdAndUpdate(req.params.cardId, updateData, { new: true })
-//     .orFail()
-//     .then((card) => card.populate(['owner', 'likes']))
-//     .then((card) => res.send({ card }))
-//     .catch(next);
-// };
 
 // поставить лайк
 const likeCard = (req, res, next) => {
@@ -64,12 +56,6 @@ const likeCard = (req, res, next) => {
     .catch(next);
 };
 
-// const likeCard = (req, res, next) => {
-//   const owner = req.user._id;
-//   const updateData = { $addToSet: { likes: owner } };
-//   updateLikes(req, res, updateData, next);
-// };
-
 // убрать лайк
 const dislikeCard = (req, res, next) => {
   const owner = req.user._id;
@@ -80,15 +66,9 @@ const dislikeCard = (req, res, next) => {
   )
     .orFail()
     .populate(['owner', 'likes'])
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.send({ card }))
     .catch(next);
 };
-
-// const dislikeCard = (req, res, next) => {
-//   const owner = req.user._id;
-//   const updateData = { $pull: { likes: owner } };
-//   updateLikes(req, res, updateData, next);
-// };
 
 module.exports = {
   getCards,

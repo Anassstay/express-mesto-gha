@@ -13,7 +13,7 @@ const {
 
 const { linkRegExp } = require('../utils/regExp');
 
-cardRouter.get('/cards', getCards);
+cardRouter.get('/', getCards);
 
 cardRouter.post('/', celebrate({
   body: Joi.object().keys({
@@ -24,19 +24,19 @@ cardRouter.post('/', celebrate({
 
 cardRouter.delete('/:cardId', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required(),
+    cardId: Joi.string().hex().length(24).required(),
   }),
 }), deleteCard);
 
 cardRouter.put('/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required(),
+    cardId: Joi.string().hex().length(24).required(),
   }),
 }), likeCard);
 
 cardRouter.delete('/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required(),
+    cardId: Joi.string().hex().length(24).required(),
   }),
 }), dislikeCard);
 
